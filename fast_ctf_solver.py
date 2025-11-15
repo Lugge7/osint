@@ -207,6 +207,29 @@ def load_stops_from_json(filename: str) -> List[Tuple[float, float, str]]:
         return []
 
 
+def prioritize_gothenburg(stops: List[Tuple[float, float, str]]) -> List[Tuple[float, float, str]]:
+    """Sort stops to prioritize Göteborg area first"""
+    # Göteborg approximate bounds
+    GOTEBORG_LAT_MIN, GOTEBORG_LAT_MAX = 57.6, 57.8
+    GOTEBORG_LON_MIN, GOTEBORG_LON_MAX = 11.8, 12.1
+
+    goteborg_stops = []
+    other_stops = []
+
+    for lat, lon, name in stops:
+        if (GOTEBORG_LAT_MIN <= lat <= GOTEBORG_LAT_MAX and
+            GOTEBORG_LON_MIN <= lon <= GOTEBORG_LON_MAX):
+            goteborg_stops.append((lat, lon, name))
+        else:
+            other_stops.append((lat, lon, name))
+
+    print(f"  Göteborg area stops: {len(goteborg_stops)}")
+    print(f"  Other stops: {len(other_stops)}")
+
+    # Göteborg stops first, then the rest
+    return goteborg_stops + other_stops
+
+
 def solve_fast(stops: List[Tuple[float, float, str]]):
     """Solve using concurrent requests"""
     global attempts, found
@@ -217,6 +240,11 @@ def solve_fast(stops: List[Tuple[float, float, str]]):
     print(f"Total stops: {len(stops)}")
     print(f"Max workers: {MAX_WORKERS}")
     print(f"{'='*70}\n")
+
+    # Prioritize Göteborg stops
+    print("Prioritizing Göteborg area stops...")
+    stops = prioritize_gothenburg(stops)
+    print()
 
     start_time = time.time()
 
