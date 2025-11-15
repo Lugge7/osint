@@ -1,0 +1,21 @@
+{
+  "comment": "Configuration file for Västtrafik Bus Stop Fetcher",
+  "api_key": "YOUR_BASE64_ENCODED_API_KEY_HERE",
+  "version": "v2",
+  "endpoints": {
+    "v2": {
+      "token_url": "https://api.vasttrafik.se/token",
+      "base_url": "https://api.vasttrafik.se/bin/rest.exe/v2"
+    },
+    "v4": {
+      "token_url": "https://api.vasttrafik.se/token",
+      "base_url": "https://ext-api.vasttrafik.se/pr/v4"
+    }
+  },
+  "output_file": "bus_stops.json",
+  "search_settings": {
+    "rate_limit_delay": 0.3,
+    "request_timeout": 10,
+    "max_results_per_query": 1000
+  }
+}
