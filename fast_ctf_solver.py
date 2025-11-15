@@ -89,15 +89,24 @@ def load_stops_from_txt(filename: str) -> List[Tuple[float, float, str]]:
 
     try:
         with open(filename, 'r', encoding='utf-8') as f:
+            first_line = f.readline().strip()
+
+            # Check if first line is a CSV header
+            is_csv_header = 'stop_id' in first_line.lower() or 'stop_name' in first_line.lower()
+
+            if not is_csv_header:
+                # Process first line as data
+                f.seek(0)
+
             for i, line in enumerate(f, 1):
                 line = line.strip()
                 if not line or line.startswith('#'):
                     continue
 
                 # Try to parse different formats:
-                # Format 1: "lat,lon"
-                # Format 2: "lat,lon,name"
-                # Format 3: "name,lat,lon"
+                # Format 1: CSV with headers: stop_id,stop_name,stop_lat,stop_lon,location_type
+                # Format 2: "lat,lon"
+                # Format 3: "lat,lon,name"
                 # Format 4: JSON per line
 
                 try:
@@ -112,6 +121,21 @@ def load_stops_from_txt(filename: str) -> List[Tuple[float, float, str]]:
 
                     # Try CSV format
                     parts = line.split(',')
+                    if len(parts) >= 4:
+                        # Format: stop_id,stop_name,stop_lat,stop_lon,location_type
+                        try:
+                            stop_id = parts[0].strip()
+                            name = parts[1].strip()
+                            lat = float(parts[2].strip())
+                            lon = float(parts[3].strip())
+
+                            # Sanity check for coordinates
+                            if 50 <= lat <= 70 and 5 <= lon <= 30:  # Wider range for Europe
+                                stops.append((lat, lon, name))
+                                continue
+                        except ValueError:
+                            pass
+
                     if len(parts) >= 2:
                         # Try lat,lon first
                         try:
@@ -119,13 +143,13 @@ def load_stops_from_txt(filename: str) -> List[Tuple[float, float, str]]:
                             lon = float(parts[1].strip())
                             name = parts[2].strip() if len(parts) > 2 else f'Stop {i}'
 
-                            # Sanity check for Swedish coordinates
-                            if 55 <= lat <= 70 and 10 <= lon <= 25:
+                            # Sanity check for coordinates
+                            if 50 <= lat <= 70 and 5 <= lon <= 30:
                                 stops.append((lat, lon, name))
                             else:
                                 # Maybe it's lon,lat
                                 lat, lon = lon, lat
-                                if 55 <= lat <= 70 and 10 <= lon <= 25:
+                                if 50 <= lat <= 70 and 5 <= lon <= 30:
                                     stops.append((lat, lon, name))
                         except ValueError:
                             continue
@@ -137,7 +161,7 @@ def load_stops_from_txt(filename: str) -> List[Tuple[float, float, str]]:
                             lat = float(parts[0].strip())
                             lon = float(parts[1].strip())
                             name = parts[2].strip() if len(parts) > 2 else f'Stop {i}'
-                            if 55 <= lat <= 70 and 10 <= lon <= 25:
+                            if 50 <= lat <= 70 and 5 <= lon <= 30:
                                 stops.append((lat, lon, name))
                         except ValueError:
                             continue
