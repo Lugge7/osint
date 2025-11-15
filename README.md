@@ -46,6 +46,52 @@ python fetch_bus_stops_v2.py
 cat bus_stops.json
 ```
 
+## CTF Challenge Solver
+
+This repository includes solvers for the **Buslätt** CTF challenge (http://challs.crate.nu:41242/).
+
+### Quick Solve
+
+```bash
+# Option 1: Use bus stops data (most accurate)
+python fetch_bus_stops_v2.py  # Get all bus stops first
+python adaptive_ctf_solver.py  # Solve the CTF
+
+# Option 2: Smart solver with multiple strategies
+python smart_ctf_solver.py
+
+# Option 3: Basic solver
+python solve_ctf.py
+```
+
+### CTF Solver Scripts
+
+#### `adaptive_ctf_solver.py` (Recommended for CTF)
+- Uses endpoint feedback ("Getting there" responses)
+- Automatically refines search around promising coordinates
+- Two-phase approach: broad search + focused refinement
+- Works with or without bus_stops.json
+
+#### `smart_ctf_solver.py`
+- Multi-strategy solver
+- Tests bus stops, known locations, and coordinate grids
+- Comprehensive coverage
+
+#### `solve_ctf.py`
+- Basic solver that tests all coordinates from bus_stops.json
+- Multiple format testing (lat,lon / lon,lat / names / IDs)
+
+### How the CTF Works
+
+The challenge shows a Västtrafik bus stop sign and asks for the position where the photo was taken.
+
+- **Endpoint**: POST to `/cpos.php` with parameter `pos`
+- **Feedback**: Returns JSON with error messages
+  - `"Getting there"` = close but not exact
+  - `"Wrong format of position"` = invalid input
+  - Success returns the flag
+- **Format**: Coordinates as `"latitude,longitude"`
+
 ## Scripts
 
 ### `fetch_bus_stops_v2.py` (Recommended)
